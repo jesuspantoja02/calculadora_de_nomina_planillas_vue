@@ -1,0 +1,154 @@
+# =============================================================================
+# Dependencias y artefactos de build
+# =============================================================================
+node_modules/
+dist/
+out-tsc/
+build/
+.output/
+.angular/
+.vite/
+.nuxt/
+.next/
+.turbo/
+.parcel-cache/
+*.tsbuildinfo
+*.map
+
+# Empaquetados / instaladores locales
+*.tgz
+*.zip
+!docs/**/*.zip
+
+# =============================================================================
+# Secretos y entorno local (.env.example sí se versiona)
+# =============================================================================
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials.json
+service-account*.json
+
+# =============================================================================
+# Base de datos SQLite (runtime). La carpeta se conserva con .gitkeep.
+# =============================================================================
+backend/data/*
+!backend/data/.gitkeep
+*.db
+*.sqlite
+*.sqlite3
+*.db-wal
+*.db-shm
+*-journal
+*.db-backup
+*.dump
+
+# =============================================================================
+# Logs, caché y cobertura de pruebas
+# =============================================================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+coverage/
+.nyc_output/
+.cache/
+.eslintcache
+.stylelintcache
+.prettiercache
+test-results/
+playwright-report/
+playwright/.cache/
+vitest.config.ts.timestamp-*
+
+# =============================================================================
+# Sistema operativo
+# =============================================================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# =============================================================================
+# Editores e IDE
+# =============================================================================
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.swp
+*.swo
+*~
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# =============================================================================
+# Herramientas locales del agente / Cursor / diseño
+# =============================================================================
+.cursor/
+.agents/
+.agent/
+.grok/
+.impeccable/
+.taste-skill/
+.claude/
+.codex/
+skills-lock.json
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+
+# =============================================================================
+# Temporales, descargas y exportaciones locales
+# =============================================================================
+*.tmp
+*.temp
+*.bak
+*.orig
+*.old
+exports/
+downloads/
+*.export.json
+*.xlsx
+*.xls
+*.csv
+!docs/**/*.csv
+!**/fixtures/**/*.csv
+!**/fixtures/**/*.xlsx
+
+# =============================================================================
+# Material de curso / exposición (local, no versionar)
+# =============================================================================
+Guia_Exposicion_Unidad_2.md
+Guia_Exposicion_Unidad_3.md
+Java_Script_Avanzado_Semanas_11_al_14.md
+Presentacion_Unidad_2.md
+Presentacion_Unidad_3.md
+PRODUCT.md
+S16_s1_semana_16_JSA.md
+S17_s1_semana_17_JSA.md
+*.pptx
+*.ppt
+*.key

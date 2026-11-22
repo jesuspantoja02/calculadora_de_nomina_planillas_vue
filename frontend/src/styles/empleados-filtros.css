@@ -1,0 +1,20 @@
+.empleado-filtros__limpiar {
+  width: 100%;
+  white-space: nowrap;
+  min-height: 31px;
+  padding-inline: 0.75rem;
+  transition: transform 0.15s ease;
+}
+
+@media (min-width: 768px) {
+  .empleado-filtros__limpiar {
+    width: auto;
+    min-width: 5.25rem;
+    margin-inline-start: auto;
+  }
+}
+
+.empleado-lista .avatar {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}

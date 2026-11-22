@@ -1,0 +1,328 @@
+/* Animaciones profesionales — respetar prefers-reduced-motion */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Entrada de vista */
+  .view {
+    animation: view-enter 420ms var(--ease-out) both;
+  }
+
+  .page-head {
+    animation: view-enter 380ms var(--ease-out) both;
+  }
+
+  /* Paneles y formularios */
+  .view > .panel,
+  .view > .row > [class*='col-'] > .panel,
+  .view > form.panel,
+  .view > .row.g-4 > [class*='col-'] {
+    animation: panel-rise 480ms var(--ease-out) both;
+  }
+
+  .view > .row.g-4 > [class*='col-']:nth-child(1) {
+    animation-delay: 40ms;
+  }
+
+  .view > .row.g-4 > [class*='col-']:nth-child(2) {
+    animation-delay: 110ms;
+  }
+
+  .view > .kpi-grid,
+  .view > .row.g-3 {
+    animation: panel-rise 500ms var(--ease-out) both;
+    animation-delay: 80ms;
+  }
+
+  /* KPIs */
+  .kpi-grid .kpi-card {
+    animation: kpi-rise 520ms var(--ease-out) both;
+  }
+
+  .kpi-grid .kpi-card:nth-child(1) {
+    animation-delay: 40ms;
+  }
+
+  .kpi-grid .kpi-card:nth-child(2) {
+    animation-delay: 90ms;
+  }
+
+  .kpi-grid .kpi-card:nth-child(3) {
+    animation-delay: 140ms;
+  }
+
+  .panel.chart-panel,
+  .panel.h-100 {
+    animation: view-enter 480ms var(--ease-out) both;
+    animation-delay: 120ms;
+  }
+
+  /* Lista staggered */
+  .row-item {
+    animation: row-in 380ms var(--ease-out) both;
+  }
+
+  .row-item:nth-child(1) {
+    animation-delay: 30ms;
+  }
+  .row-item:nth-child(2) {
+    animation-delay: 60ms;
+  }
+  .row-item:nth-child(3) {
+    animation-delay: 90ms;
+  }
+  .row-item:nth-child(4) {
+    animation-delay: 120ms;
+  }
+  .row-item:nth-child(5) {
+    animation-delay: 150ms;
+  }
+  .row-item:nth-child(6) {
+    animation-delay: 180ms;
+  }
+  .row-item:nth-child(7) {
+    animation-delay: 210ms;
+  }
+  .row-item:nth-child(8) {
+    animation-delay: 240ms;
+  }
+  .row-item:nth-child(n + 9) {
+    animation-delay: 270ms;
+  }
+
+  .row-item.clickable {
+    transition:
+      background var(--duration-fast) ease,
+      transform var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-fast) ease;
+  }
+
+  .row-item.clickable:hover {
+    transform: translateX(3px);
+  }
+
+  .row-item.clickable:active {
+    transform: translateX(1px) scale(0.995);
+  }
+
+  /* Navegación sidebar */
+  .sidebar .nav-item {
+    animation: nav-in 360ms var(--ease-out) both;
+  }
+
+  .sidebar .nav-group__items .nav-item:nth-child(1) {
+    animation-delay: 40ms;
+  }
+  .sidebar .nav-group__items .nav-item:nth-child(2) {
+    animation-delay: 80ms;
+  }
+  .sidebar .nav-group__items .nav-item:nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .sidebar .nav-group__items .nav-item:nth-child(4) {
+    animation-delay: 160ms;
+  }
+  .sidebar .nav-group__items .nav-item:nth-child(5) {
+    animation-delay: 200ms;
+  }
+
+  .sidebar-brand-row {
+    animation: view-enter 400ms var(--ease-out) both;
+  }
+
+  .sidebar-foot {
+    animation: view-enter 450ms var(--ease-out) both;
+    animation-delay: 180ms;
+  }
+
+  /* Botones */
+  .btn {
+    transition:
+      transform var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-fast) var(--ease-out),
+      background-color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease,
+      color var(--duration-fast) ease,
+      filter var(--duration-fast) ease;
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  .btn:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .btn-export {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-export::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      transparent 30%,
+      color-mix(in srgb, #fff 28%, transparent) 50%,
+      transparent 70%
+    );
+    transform: translateX(-120%);
+    pointer-events: none;
+  }
+
+  .btn-export:hover::after {
+    animation: sheen 700ms var(--ease-out);
+  }
+
+  /* Controles */
+  .form-control,
+  .form-select {
+    transition:
+      border-color var(--duration-fast) ease,
+      box-shadow var(--duration-fast) ease,
+      background-color var(--duration-fast) ease,
+      transform var(--duration-fast) var(--ease-out);
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    transform: translateY(-1px);
+  }
+
+  /* Boleta / empty */
+  .boleta.panel,
+  .panel.empty {
+    animation: panel-rise 460ms var(--ease-out) both;
+  }
+
+  /* Toast */
+  .toast-item {
+    animation: toast-in 360ms var(--ease-out) both;
+  }
+
+  /* Utilidades */
+  .anim-fade-up {
+    animation: view-enter 420ms var(--ease-out) both;
+  }
+
+  .anim-pop {
+    animation: pop-in 320ms var(--ease-out) both;
+  }
+}
+
+@keyframes view-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes panel-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes kpi-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes nav-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes sheen {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view,
+  .page-head,
+  .view > .panel,
+  .view > .row > [class*='col-'] > .panel,
+  .view > form.panel,
+  .view > .row.g-4 > [class*='col-'],
+  .view > .kpi-grid,
+  .view > .row.g-3,
+  .kpi-grid .kpi-card,
+  .panel.chart-panel,
+  .panel.h-100,
+  .row-item,
+  .sidebar .nav-item,
+  .sidebar-brand-row,
+  .sidebar-foot,
+  .boleta.panel,
+  .panel.empty,
+  .toast-item,
+  .anim-fade-up,
+  .anim-pop,
+  .btn-export::after {
+    animation: none !important;
+  }
+
+  .btn:hover:not(:disabled),
+  .row-item.clickable:hover,
+  .form-control:focus,
+  .form-select:focus {
+    transform: none;
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "nomina-frontend",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "vite",
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "audit:prod": "npm audit --omit=dev"
+  },
+  "dependencies": {
+    "@fontsource/geist-mono": "^5.3.0",
+    "@fontsource/geist-sans": "^5.3.0",
+    "bootstrap": "^5.3.8",
+    "exceljs": "^4.4.0",
+    "jspdf": "^4.2.1",
+    "vue": "^3.5.22",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.12",
+    "vue-tsc": "^3.1.1"
+  }
+}
