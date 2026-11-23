@@ -5,7 +5,7 @@ Guía paso a paso para publicar el **árbol actual** del monorepo (Unidad 3 Fina
 - **Web Service** → API Node.js (`backend/`: auth JWT, planilla, **asistente IA**)
 - **Static Site** → SPA **Vue 3** + Vite (`frontend/`)
 
-Replica en la nube lo que haces en local con `npm run dev:backend` y `npm run dev:frontend` (`http://localhost:5174`), con **dos URLs distintas**, **CORS** y la variable **`VITE_API_URL`** en el build del Static Site.
+Replica en la nube lo que haces en local con `npm run dev:backend` y `npm run dev:frontend` (`http://localhost:5174`), con **dos URLs distintas**, **CORS** y la variable `VITE_API_URL` en el build del Static Site.
 
 > **Importante:** en Render subes **backend y frontend** (dos servicios o un **Blueprint**). El repo incluye [`render.yaml`](../render.yaml) en la raíz para crearlos juntos; también puedes crearlos a mano en el dashboard (secciones 8 y 12).
 
@@ -15,8 +15,10 @@ Documentación del producto y evolución por unidades: [`README.md`](../README.m
 
 ## Tabla de contenidos
 
-0. [Flujo completo: GitHub → Render (API + SPA)](#0-flujo-completo-github--render-api--spa)
-0b. [Alternativa: Blueprint `render.yaml`](#0b-alternativa-blueprint-renderyaml)
+1. [Flujo completo: GitHub → Render (API + SPA)](#0-flujo-completo-github--render-api--spa)
+
+0b. [Alternativa: Blueprint](#0b-alternativa-blueprint-renderyaml) `render.yaml`
+
 1. [Qué vas a obtener](#1-qué-vas-a-obtener)
 2. [Requisitos previos](#2-requisitos-previos)
 3. [Limitaciones del plan Free (léelas antes)](#3-limitaciones-del-plan-free-léelas-antes)
@@ -34,7 +36,7 @@ Documentación del producto y evolución por unidades: [`README.md`](../README.m
 15. [Variables de entorno (referencia)](#15-variables-de-entorno-referencia)
 16. [Solución de problemas](#16-solución-de-problemas)
 17. [Mantenimiento y redespliegues](#17-mantenimiento-y-redespliegues)
-18. [Apéndice: contenido de `render.yaml`](#18-apéndice-contenido-de-renderyaml)
+18. [Apéndice: contenido de](#18-apéndice-contenido-de-renderyaml) `render.yaml`
 
 ---
 
@@ -72,7 +74,7 @@ En la raíz del repo: [`render.yaml`](../render.yaml). Crea **API + SPA en un so
 
 1. `git push` (incluye `render.yaml`).
 2. Render → **New +** → **Blueprint** → tu repo, rama `main` → **Apply Blueprint**.
-3. Si pide variables con `sync: false`, configura **`GEMINI_API_KEY`** (opcional; vacío = asistente local).
+3. Si pide variables con `sync: false`, configura `GEMINI_API_KEY` (opcional; vacío = asistente local).
 4. Espera **Live** en `nomina-api` y `nomina-web`.
 5. Prueba `https://nomina-api.onrender.com/api/v1/health` y abre `https://nomina-web.onrender.com`.
 
@@ -100,7 +102,6 @@ Las exportaciones **CSV/Excel** (empleados) y **PDF** (boletas) se generan en el
 - En tu PC (para probar antes de subir):
   - **Node.js ≥ 22.18** (igual que `backend/package.json` → `engines.node`).
   - Haber ejecutado al menos una vez:
-
     ```bash
     npm run install:all
     npm run dev:backend
@@ -121,15 +122,15 @@ Eso ya está cubierto por el `.gitignore` del repositorio.
 
 ## 3. Limitaciones del plan Free (léelas antes)
 
-| Tema | Comportamiento |
-|------|----------------|
-| **Inactividad** | El Web Service se **apaga** tras ~15 minutos sin tráfico. La primera visita después puede tardar **30–90 segundos** (cold start). |
-| **SQLite** | La base `data/nomina.db` vive en el **disco del contenedor**. En el plan Free, al **redesplegar** o en algunos reinicios **puedes perder los datos**. Usa datos de prueba, `npm run seed` o vuelve a cargar desde la UI. |
-| **Dos dominios** | Frontend y API no comparten origen; configura **CORS** en el backend y **`VITE_API_URL`** en el build del Static Site. |
-| **HTTPS** | Render provee HTTPS; usa `https://` en CORS y en `VITE_API_URL`. |
-| **Autenticación** | La API exige `Authorization: Bearer <token>` en rutas protegidas. El token lo devuelve el login; la SPA lo guarda en `sessionStorage`. |
-| **Asistente IA** | Sin `GEMINI_API_KEY` (u otro proveedor en la nube) el backend usa el **motor local** (respuestas fijas sobre el sistema). **Ollama** (`127.0.0.1`) no aplica en el contenedor de Render; para demo en la nube configura **Gemini** u **OpenAI** en el Web Service. |
-| **Cold start + chat** | Tras inactividad, el primer mensaje al asistente puede tardar más (despertar API + llamada al LLM). Timeout del proxy en local: 60 s (`frontend/vite.config.ts`); en producción el navegador habla directo con la API. |
+| Tema                  | Comportamiento                                                                                                                                                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Inactividad**       | El Web Service se **apaga** tras ~15 minutos sin tráfico. La primera visita después puede tardar **30–90 segundos** (cold start).                                                                                                                                  |
+| **SQLite**            | La base `data/nomina.db` vive en el **disco del contenedor**. En el plan Free, al **redesplegar** o en algunos reinicios **puedes perder los datos**. Usa datos de prueba, `npm run seed` o vuelve a cargar desde la UI.                                           |
+| **Dos dominios**      | Frontend y API no comparten origen; configura **CORS** en el backend y `VITE_API_URL` en el build del Static Site.                                                                                                                                                 |
+| **HTTPS**             | Render provee HTTPS; usa `https://` en CORS y en `VITE_API_URL`.                                                                                                                                                                                                   |
+| **Autenticación**     | La API exige `Authorization: Bearer <token>` en rutas protegidas. El token lo devuelve el login; la SPA lo guarda en `sessionStorage`.                                                                                                                             |
+| **Asistente IA**      | Sin `GEMINI_API_KEY` (u otro proveedor en la nube) el backend usa el **motor local** (respuestas fijas sobre el sistema). **Ollama** (`127.0.0.1`) no aplica en el contenedor de Render; para demo en la nube configura **Gemini** u **OpenAI** en el Web Service. |
+| **Cold start + chat** | Tras inactividad, el primer mensaje al asistente puede tardar más (despertar API + llamada al LLM). Timeout del proxy en local: 60 s (`frontend/vite.config.ts`); en producción el navegador habla directo con la API.                                             |
 
 Para un proyecto de curso y demo, estas limitaciones suelen ser aceptables.
 
@@ -155,7 +156,7 @@ Usuario
 └─────────────────────────────────────┘
 ```
 
-En **desarrollo local**, Vite hace proxy de `/api` al puerto 3000 (`frontend/vite.config.ts`) y `apiUrl` es `/api/v1` (`frontend/src/config/environment.ts`). En **Render no hay proxy**: el build del Static Site debe recibir la URL absoluta de la API con **`VITE_API_URL`**.
+En **desarrollo local**, Vite hace proxy de `/api` al puerto 3000 (`frontend/vite.config.ts`) y `apiUrl` es `/api/v1` (`frontend/src/config/environment.ts`). En **Render no hay proxy**: el build del Static Site debe recibir la URL absoluta de la API con `VITE_API_URL`.
 
 ---
 
@@ -234,27 +235,23 @@ Render **no** sube tu código: primero debe estar en **GitHub** (u otro Git que 
 
 1. Crea el repositorio en GitHub (vacío o con README).
 2. En la raíz del monorepo (PowerShell o bash):
-
    ```bash
-   git init
-   git add .
-   git commit -m "Monorepo: API + SPA Vue"
-   git branch -M main
-   git remote add origin https://github.com/TU_USUARIO/TU_REPO.git
-   git push -u origin main
+    git init
+    git add .
+    git commit -m "Monorepo: API + SPA Vue"
+    git branch -M main
+    git remote add origin https://github.com/TU_USUARIO/TU_REPO.git
+    git push -u origin main
    ```
-
 3. Confirma en GitHub que ves **ambas** carpetas en la raíz:
-
    ```text
-   backend/
-   frontend/
-   docs/
-   package.json
-   README.md
+    backend/
+    frontend/
+    docs/
+    package.json
+    README.md
    ```
-
-4. En cada servicio de Render (API y Static Site), al conectar el repo elige la misma rama (**`main`**) y solo cambia **Root Directory** (`backend` vs `frontend`).
+4. En cada servicio de Render (API y Static Site), al conectar el repo elige la misma rama (`main`) y solo cambia **Root Directory** (`backend` vs `frontend`).
 
 **No subas a GitHub** (el `.gitignore` ya lo evita): `node_modules/`, `backend/.env`, `backend/data/*.db`, secretos.
 
@@ -269,8 +266,8 @@ Render **no** sube tu código: primero debe estar en **GitHub** (u otro Git que 
 
 ### 7.1 Qué vas a crear en Render (dos veces “New +”)
 
-1. **New +** → **Web Service** → mismo repo → Root **`backend`** (sección 8).
-2. **New +** → **Static Site** → mismo repo → Root **`frontend`** (sección 12).
+1. **New +** → **Web Service** → mismo repo → Root `backend` (sección 8).
+2. **New +** → **Static Site** → mismo repo → Root `frontend` (sección 12).
 
 No mezcles tipos: la API **no** puede ser Static Site; el Vue **no** debe ser Web Service (en plan Free la SPA va en Static Site con `dist/`).
 
@@ -282,7 +279,7 @@ No mezcles tipos: la API **no** puede ser Static Site; el Vue **no** debe ser We
 
 1. En el dashboard: **New +** → **Web Service**.
 2. Selecciona tu repositorio.
-3. Rama: **`main`**.
+3. Rama: `main`.
 
 ### 8.2 Configuración del formulario
 
@@ -316,9 +313,9 @@ En **Environment** → **Add Environment Variable**:
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Solo si usas OpenAI o API compatible |
 | `OPENAI_MODEL` | `gpt-4o-mini` | Solo con OpenAI |
 
-**No definas `PORT`:** Render la inyecta; la API la lee en `backend/src/shared/config/env.ts`.
+**No definas** `PORT`**:** Render la inyecta; la API la lee en `backend/src/shared/config/env.ts`.
 
-**No configures `OLLAMA_*` en Render:** Ollama apunta al equipo local; en la nube queda vacío y el servicio elegirá Gemini, OpenAI o el motor local.
+**No configures** `OLLAMA_`* **en Render:** Ollama apunta al equipo local; en la nube queda vacío y el servicio elegirá Gemini, OpenAI o el motor local.
 
 Al arrancar, si no existe el usuario administrador inicial, se crea uno (ver `backend/src/modules/auth/infrastructure/seed-usuarios.ts`). **En producción:** entra una vez, cambia la contraseña desde el perfil y rota `AUTH_SECRET`; no dejes credenciales de desarrollo en un demo público.
 
@@ -346,7 +343,7 @@ Ejemplo:
 https://nomina-api-xxxx.onrender.com
 ```
 
-La necesitas para **`VITE_API_URL`** (frontend) y para **`CORS_ORIGINS`** (backend, sección 13).
+La necesitas para `VITE_API_URL` (frontend) y para `CORS_ORIGINS` (backend, sección 13).
 
 **No crees el Static Site** hasta tener esta URL y un `/api/v1/health` OK.
 
@@ -380,21 +377,18 @@ Si falla: revisa **Logs**, **Root Directory** = `backend`, **Start Command** = `
 La API **no** muestra empleados en la raíz del dominio. Para ver JSON:
 
 1. **Login** (público):
-
    ```http
-   POST https://TU-SERVICIO-API.onrender.com/api/v1/auth/login
-   Content-Type: application/json
+    POST https://TU-SERVICIO-API.onrender.com/api/v1/auth/login
+    Content-Type: application/json
 
-   {"usuario":"tu_usuario","password":"tu_clave"}
+    {"usuario":"tu_usuario","password":"tu_clave"}
    ```
 
-   Respuesta: `data.token`, `data.id`, `data.usuario`, `data.rol`.
-
+    Respuesta: `data.token`, `data.id`, `data.usuario`, `data.rol`.
 2. **Listar empleados** (protegido):
-
    ```http
-   GET https://TU-SERVICIO-API.onrender.com/api/v1/empleados
-   Authorization: Bearer <data.token>
+    GET https://TU-SERVICIO-API.onrender.com/api/v1/empleados
+    Authorization: Bearer <data.token>
    ```
 
 **PowerShell:**
@@ -407,35 +401,30 @@ Invoke-RestMethod -Uri "$base/empleados" -Headers @{ Authorization = "Bearer $($
 ```
 
 3. **Estado del asistente** (protegido):
-
    ```http
-   GET https://TU-SERVICIO-API.onrender.com/api/v1/asistente/estado
-   Authorization: Bearer <data.token>
+    GET https://TU-SERVICIO-API.onrender.com/api/v1/asistente/estado
+    Authorization: Bearer <data.token>
    ```
 
-   Respuesta típica: `data.proveedor` (`gemini` · `openai` · `ollama` · `local`) y `data.listo`.
-
+    Respuesta típica: `data.proveedor` (`gemini` · `openai` · `ollama` · `local`) y `data.listo`.
 4. **Chat del asistente** (protegido):
-
    ```http
-   POST https://TU-SERVICIO-API.onrender.com/api/v1/asistente/chat
-   Authorization: Bearer <data.token>
-   Content-Type: application/json
+    POST https://TU-SERVICIO-API.onrender.com/api/v1/asistente/chat
+    Authorization: Bearer <data.token>
+    Content-Type: application/json
 
-   {"mensaje":"¿Qué rutas hay en el menú?","historial":[]}
+    {"mensaje":"¿Qué rutas hay en el menú?","historial":[]}
    ```
-
 5. **Actualizar foto de perfil** (protegido; el SPA usa `PUT`):
-
    ```http
-   PUT https://TU-SERVICIO-API.onrender.com/api/v1/auth/me
-   Authorization: Bearer <data.token>
-   Content-Type: application/json
+    PUT https://TU-SERVICIO-API.onrender.com/api/v1/auth/me
+    Authorization: Bearer <data.token>
+    Content-Type: application/json
 
-   {"fotoUrl":"data:image/jpeg;base64,..."}
+    {"fotoUrl":"data:image/jpeg;base64,..."}
    ```
 
-   También acepta `PATCH /auth/me` y el alias legado `fotoPerfilUrl`. Cadena vacía en `fotoUrl` quita la foto.
+    También acepta `PATCH /auth/me` y el alias legado `fotoPerfilUrl`. Cadena vacía en `fotoUrl` quita la foto.
 
 Desde el **frontend desplegado**, tras iniciar sesión, el token está en `sessionStorage` (`nomina_auth_token`); la app añade el header `Authorization` automáticamente (`frontend/src/shared/infrastructure/http/apiClient.ts`).
 
@@ -476,7 +465,7 @@ Sin barra final después de `v1`. Debe incluir el prefijo `/api/v1`.
 ### 12.2 Crear el Static Site
 
 1. **New +** → **Static Site**.
-2. Mismo repositorio y rama **`main`**.
+2. Mismo repositorio y rama `main`.
 
 | Campo | Valor |
 |--------|--------|
@@ -506,7 +495,7 @@ Sin esto, al refrescar `/empleados` verás **404**.
 
 | Tipo | Source | Destination |
 |------|--------|-------------|
-| **Rewrite** | `/*` | `/index.html` |
+| **Rewrite** | `/`* | `/index.html` |
 
 Status **200** (rewrite, no redirect).
 
@@ -634,14 +623,12 @@ Para ver el JSON de empleados:
 
 - **PowerShell** (sección 10): login → `Invoke-RestMethod` a `/empleados` con el token.
 - **Consola del navegador** en tu SPA ya logueada:
-
   ```javascript
   const token = sessionStorage.getItem('nomina_auth_token');
   fetch('https://TU-API.onrender.com/api/v1/empleados', {
     headers: { Authorization: `Bearer ${token}` },
   }).then((r) => r.json()).then(console.log);
   ```
-
 - **Postman** u otra herramienta HTTP con Bearer tras el login.
 
 ### Desplegar solo backend o solo frontend
@@ -684,7 +671,7 @@ Cada push a `main` redeploya el servicio conectado, o **Manual Deploy** → **De
 
 ### Backend en Render
 
-- [ ] **Web Service**, Root **`backend`**, `npm install && npm run build` / `npm start`
+- [ ] **Web Service**, Root `backend`, `npm install && npm run build` / `npm start`
 - [ ] `AUTH_SECRET`, `NODE_ENV=production`, `NODE_VERSION=22.18.0`
 - [ ] (Opcional) `GEMINI_API_KEY` para asistente en la nube
 - [ ] Health check `/api/v1/health` → **Live**
@@ -692,7 +679,7 @@ Cada push a `main` redeploya el servicio conectado, o **Manual Deploy** → **De
 
 ### Frontend en Render
 
-- [ ] **Static Site**, Root **`frontend`**, publish **`dist`**
+- [ ] **Static Site**, Root `frontend`, publish `dist`
 - [ ] `VITE_API_URL=https://TU-API.onrender.com/api/v1` (sin barra final tras `v1`)
 - [ ] Rewrite SPA `/*` → `/index.html` (status 200)
 - [ ] Static Site en estado **Live** con URL propia

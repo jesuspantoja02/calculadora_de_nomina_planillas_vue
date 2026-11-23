@@ -10,6 +10,7 @@ import App from './App.vue';
 import { router } from './router';
 import { aplicarTemaDom, leerTema } from './core/theme/themeStorage';
 import './styles/index.css';
+import './styles/login.css';
 import './styles/charts.css';
 import './styles/theme-toggle.css';
 import './styles/theme-transition.css';

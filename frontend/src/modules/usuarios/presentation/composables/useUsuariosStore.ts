@@ -77,6 +77,14 @@ export function useUsuariosStore(esAdministrador: boolean) {
     }
   }
 
+  async function liberarBloqueo(cuenta: UsuarioCuenta) {
+    const u = await run(() => usuarios.liberarBloqueo(cuenta.id));
+    if (u) {
+      toast.exito(`Cuenta «${u.usuario}» liberada. Ya puede iniciar sesión.`);
+      refrescar();
+    }
+  }
+
   return {
     items,
     rolesAsignables,
@@ -88,5 +96,6 @@ export function useUsuariosStore(esAdministrador: boolean) {
     },
     guardar,
     eliminar,
+    liberarBloqueo,
   };
 }

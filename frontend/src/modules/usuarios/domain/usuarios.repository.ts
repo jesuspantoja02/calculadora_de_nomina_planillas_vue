@@ -6,5 +6,6 @@ export interface UsuariosRepository {
   rolesAsignables(): Promise<RolUsuario[]>;
   crear(dto: UsuarioCuentaDto): Promise<UsuarioCuenta>;
   actualizar(id: string, dto: ActualizarUsuarioDto): Promise<UsuarioCuenta>;
+  liberarBloqueo(id: string): Promise<UsuarioCuenta>;
   eliminar(id: string): Promise<true>;
 }

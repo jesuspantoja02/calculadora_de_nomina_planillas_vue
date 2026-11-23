@@ -12,9 +12,13 @@ type Fila = {
   rol: RolUsuario;
   foto_url: string;
   creado_en: string;
+  intentos_fallidos: number;
+  bloqueado_hasta: string | null;
+  activo: number;
 };
 
-const COLUMNAS = 'id, usuario, password_hash, rol, foto_url, creado_en';
+const COLUMNAS =
+  'id, usuario, password_hash, rol, foto_url, creado_en, intentos_fallidos, bloqueado_hasta, activo';
 
 function mapFila(fila: Fila): Usuario {
   return {
@@ -24,6 +28,9 @@ function mapFila(fila: Fila): Usuario {
     rol: fila.rol,
     fotoUrl: fila.foto_url ?? '',
     creadoEn: fila.creado_en,
+    intentosFallidos: Number(fila.intentos_fallidos ?? 0),
+    bloqueadoHasta: fila.bloqueado_hasta ?? null,
+    activo: Number(fila.activo ?? 1) === 1,
   };
 }
 
@@ -55,12 +62,13 @@ export class SqliteUsuarioRepository implements UsuarioRepository {
 
   crear(input: CrearUsuarioInput): Usuario {
     const id = input.id || randomUUID();
+    const activo = input.activo !== false;
     this.#db
       .prepare(
-        `INSERT INTO usuarios (id, usuario, password_hash, rol, foto_url, creado_en)
-         VALUES (?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO usuarios (id, usuario, password_hash, rol, foto_url, creado_en, intentos_fallidos, bloqueado_hasta, activo)
+         VALUES (?, ?, ?, ?, ?, ?, 0, NULL, ?)`,
       )
-      .run(id, input.usuario, input.passwordHash, input.rol, input.fotoUrl ?? '', input.creadoEn);
+      .run(id, input.usuario, input.passwordHash, input.rol, input.fotoUrl ?? '', input.creadoEn, activo ? 1 : 0);
     return {
       id,
       usuario: input.usuario,
@@ -68,6 +76,9 @@ export class SqliteUsuarioRepository implements UsuarioRepository {
       rol: input.rol,
       fotoUrl: input.fotoUrl ?? '',
       creadoEn: input.creadoEn,
+      intentosFallidos: 0,
+      bloqueadoHasta: null,
+      activo,
     };
   }
 
@@ -79,12 +90,31 @@ export class SqliteUsuarioRepository implements UsuarioRepository {
     const passwordHash = input.passwordHash ?? actual.passwordHash;
     const rol = input.rol ?? actual.rol;
     const fotoUrl = input.fotoUrl !== undefined ? input.fotoUrl : actual.fotoUrl;
+    const intentosFallidos =
+      input.intentosFallidos !== undefined ? input.intentosFallidos : actual.intentosFallidos;
+    const bloqueadoHasta =
+      input.bloqueadoHasta !== undefined ? input.bloqueadoHasta : actual.bloqueadoHasta;
+    const activo = input.activo !== undefined ? input.activo : actual.activo;
 
     this.#db
-      .prepare(`UPDATE usuarios SET usuario = ?, password_hash = ?, rol = ?, foto_url = ? WHERE id = ?`)
-      .run(usuario, passwordHash, rol, fotoUrl, id);
+      .prepare(
+        `UPDATE usuarios
+         SET usuario = ?, password_hash = ?, rol = ?, foto_url = ?, intentos_fallidos = ?, bloqueado_hasta = ?, activo = ?
+         WHERE id = ?`,
+      )
+      .run(usuario, passwordHash, rol, fotoUrl, intentosFallidos, bloqueadoHasta, activo ? 1 : 0, id);
 
-    return { id, usuario, passwordHash, rol, fotoUrl, creadoEn: actual.creadoEn };
+    return {
+      id,
+      usuario,
+      passwordHash,
+      rol,
+      fotoUrl,
+      creadoEn: actual.creadoEn,
+      intentosFallidos,
+      bloqueadoHasta,
+      activo,
+    };
   }
 
   eliminar(id: string): void {

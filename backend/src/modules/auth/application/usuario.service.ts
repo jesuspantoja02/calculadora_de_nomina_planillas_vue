@@ -14,10 +14,35 @@ export interface UsuarioDto {
   rol: RolUsuario;
   fotoUrl: string;
   creadoEn: string;
+  intentosFallidos: number;
+  bloqueada: boolean;
+  bloqueadoHasta: string | null;
+  segundosRestantes: number;
+  activo: boolean;
+}
+
+function segundosHasta(iso: string | null): number {
+  if (!iso) return 0;
+  const fin = Date.parse(iso);
+  if (Number.isNaN(fin)) return 0;
+  return Math.max(0, Math.ceil((fin - Date.now()) / 1000));
 }
 
 function aDto(u: Usuario): UsuarioDto {
-  return { id: u.id, usuario: u.usuario, rol: u.rol, fotoUrl: u.fotoUrl ?? '', creadoEn: u.creadoEn };
+  const segundosRestantes = segundosHasta(u.bloqueadoHasta);
+  const bloqueada = segundosRestantes > 0;
+  return {
+    id: u.id,
+    usuario: u.usuario,
+    rol: u.rol,
+    fotoUrl: u.fotoUrl ?? '',
+    creadoEn: u.creadoEn,
+    intentosFallidos: u.intentosFallidos,
+    bloqueada,
+    bloqueadoHasta: bloqueada ? u.bloqueadoHasta : null,
+    segundosRestantes: bloqueada ? segundosRestantes : 0,
+    activo: u.activo !== false,
+  };
 }
 
 export class UsuarioGestionService {
@@ -56,10 +81,21 @@ export class UsuarioGestionService {
       throw new AppError(404, 'NO_ENCONTRADO', 'Usuario no encontrado.');
     }
 
+    if (body.activo === false && actor.sub === id) {
+      throw new AppError(
+        400,
+        'AUTO_DESHABILITACION',
+        'No puedes deshabilitar tu propia cuenta mientras tienes la sesión abierta.',
+      );
+    }
+
     if (body.rol !== undefined && !puedeAsignarRol(actor.rol, body.rol)) {
       throw new AppError(403, 'SIN_PERMISO', 'No puedes asignar ese rol.');
     }
     if (body.rol !== undefined && existente.rol === 'admin' && body.rol !== 'admin') {
+      this.#asegurarOtroAdmin(id);
+    }
+    if (body.activo === false && existente.rol === 'admin') {
       this.#asegurarOtroAdmin(id);
     }
     if (body.usuario !== undefined && body.usuario.toLowerCase() !== existente.usuario.toLowerCase()) {
@@ -74,6 +110,7 @@ export class UsuarioGestionService {
       passwordHash: body.password ? hashPassword(body.password) : undefined,
       rol: body.rol,
       fotoUrl: body.fotoUrl,
+      activo: body.activo,
     });
     return aDto(actualizado);
   }
@@ -97,10 +134,24 @@ export class UsuarioGestionService {
     return todos.filter((r) => puedeAsignarRol(actor.rol, r));
   }
 
+  liberarBloqueo(id: string): UsuarioDto {
+    const existente = this.#usuarios.buscarPorId(id);
+    if (!existente) {
+      throw new AppError(404, 'NO_ENCONTRADO', 'Usuario no encontrado.');
+    }
+    const liberado = this.#usuarios.actualizar(id, {
+      intentosFallidos: 0,
+      bloqueadoHasta: null,
+    });
+    return aDto(liberado);
+  }
+
   #asegurarOtroAdmin(excluirId: string): void {
-    const admins = this.#usuarios.listar().filter((u) => u.rol === 'admin' && u.id !== excluirId);
+    const admins = this.#usuarios
+      .listar()
+      .filter((u) => u.rol === 'admin' && u.activo !== false && u.id !== excluirId);
     if (admins.length === 0) {
-      throw new AppError(400, 'ULTIMO_ADMIN', 'Debe quedar al menos un administrador en el sistema.');
+      throw new AppError(400, 'ULTIMO_ADMIN', 'Debe quedar al menos un administrador activo en el sistema.');
     }
   }
 }

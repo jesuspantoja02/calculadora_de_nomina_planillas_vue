@@ -13,6 +13,7 @@ export function crearUsuarioRouter(servicio: UsuarioGestionService): Router {
   router.post('/', c.crear);
   router.get('/', soloAdmin, c.listar);
   router.put('/:id', soloAdmin, c.actualizar);
+  router.post('/:id/liberar-bloqueo', soloAdmin, c.liberarBloqueo);
   router.delete('/:id', soloAdmin, c.eliminar);
   return router;
 }

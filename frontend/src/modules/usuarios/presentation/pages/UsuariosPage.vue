@@ -13,7 +13,7 @@ const { rol, userId, actualizarFotoLocal } = useAuth();
 const { confirmar } = useConfirm();
 const admin = computed(() => esAdmin(rol.value));
 const store = useUsuariosStore(admin.value);
-const { items, rolesAsignables, cargando, guardando, editando, editar, guardar, eliminar } = store;
+const { items, rolesAsignables, cargando, guardando, editando, editar, guardar, eliminar, liberarBloqueo } = store;
 const limpiarForm = ref<(() => void) | null>(null);
 
 async function onGuardar(dto: UsuarioCuentaDto | ActualizarUsuarioDto, esNuevo: boolean) {
@@ -34,6 +34,18 @@ async function onEliminar(u: UsuarioCuenta) {
     variante: 'peligro',
   });
   if (ok) void eliminar(u);
+}
+
+async function onLiberar(u: UsuarioCuenta) {
+  const ok = await confirmar({
+    titulo: 'Liberar cuenta',
+    mensaje: `¿Liberar el bloqueo de «${u.usuario}»?`,
+    detalle: 'La cuenta podrá volver a iniciar sesión de inmediato (se reinician los intentos fallidos).',
+    confirmarTexto: 'Liberar',
+    cancelarTexto: 'Cancelar',
+    variante: 'aviso',
+  });
+  if (ok) void liberarBloqueo(u);
 }
 
 const titulo = computed(() => (admin.value ? 'Usuarios del sistema' : 'Agregar nuevo usuario'));
@@ -58,6 +70,7 @@ const descripcion = computed(() =>
         :roles-asignables="rolesAsignables"
         :guardando="guardando"
         :solo-alta="!admin"
+        :sesion-id="userId"
         @guardar="onGuardar"
         @cancelar="editar(null)"
         @limpiar-ref="(fn) => (limpiarForm = fn)"
@@ -78,6 +91,7 @@ const descripcion = computed(() =>
           :sesion-id="userId"
           @editar="editar"
           @eliminar="onEliminar"
+          @liberar="onLiberar"
         />
       </div>
     </section>

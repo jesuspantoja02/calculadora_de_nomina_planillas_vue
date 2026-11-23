@@ -25,6 +25,10 @@ export class UsuariosService {
     return this.#repo.actualizar(id, dto);
   }
 
+  liberarBloqueo(id: string): Promise<UsuarioCuenta> {
+    return this.#repo.liberarBloqueo(id);
+  }
+
   eliminar(id: string): Promise<true> {
     return this.#repo.eliminar(id);
   }

@@ -7,6 +7,7 @@ export interface CrearUsuarioInput {
   rol: RolUsuario;
   fotoUrl: string;
   creadoEn: string;
+  activo?: boolean;
 }
 
 export interface ActualizarUsuarioInput {
@@ -14,6 +15,10 @@ export interface ActualizarUsuarioInput {
   passwordHash?: string;
   rol?: RolUsuario;
   fotoUrl?: string;
+  intentosFallidos?: number;
+  /** Pasar `null` limpia el bloqueo. */
+  bloqueadoHasta?: string | null;
+  activo?: boolean;
 }
 
 export interface UsuarioRepository {

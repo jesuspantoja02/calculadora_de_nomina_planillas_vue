@@ -15,7 +15,11 @@ function encabezadosAuth(): HeadersInit {
 }
 
 interface CuerpoError {
-  error?: { message?: string; details?: { campo: string; mensaje: string }[] };
+  error?: {
+    code?: string;
+    message?: string;
+    details?: unknown;
+  };
 }
 
 export function mensajeDeError(status: number, cuerpo: unknown): string {
@@ -23,7 +27,10 @@ export function mensajeDeError(status: number, cuerpo: unknown): string {
   const body = cuerpo as CuerpoError | null;
   const detalles = body?.error?.details;
   if (Array.isArray(detalles) && detalles.length > 0) {
-    return detalles.map((d) => `${d.campo}: ${d.mensaje}`).join(' · ');
+    const lista = detalles as { campo?: string; mensaje?: string }[];
+    if (lista.every((d) => typeof d?.mensaje === 'string')) {
+      return lista.map((d) => `${d.campo ?? '?'}: ${d.mensaje}`).join(' · ');
+    }
   }
   return body?.error?.message ?? `Error inesperado (${status}).`;
 }
@@ -32,10 +39,17 @@ export class ApiError extends Error {
   constructor(
     readonly status: number,
     message: string,
+    readonly code?: string,
+    readonly details?: unknown,
   ) {
     super(message);
     this.name = 'ApiError';
   }
+}
+
+export function errorDesdeRespuesta(status: number, cuerpo: unknown): ApiError {
+  const body = cuerpo as CuerpoError | null;
+  return new ApiError(status, mensajeDeError(status, cuerpo), body?.error?.code, body?.error?.details);
 }
 
 function paramsDe(obj: Record<string, string | number | undefined>): string {
@@ -56,7 +70,7 @@ export async function apiGet<T>(path: string, query: Record<string, string | num
     } catch {
       /* cuerpo vacío */
     }
-    throw new ApiError(res.status, mensajeDeError(res.status, body));
+    throw errorDesdeRespuesta(res.status, body);
   }
   const json = (await res.json()) as ApiResponse<T>;
   return json.data;
@@ -75,8 +89,9 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
     } catch {
       /* cuerpo vacío */
     }
-    throw new ApiError(res.status, mensajeDeError(res.status, errBody));
+    throw errorDesdeRespuesta(res.status, errBody);
   }
+  if (res.status === 204) return undefined as T;
   const json = (await res.json()) as ApiResponse<T>;
   return json.data;
 }
@@ -94,7 +109,7 @@ export async function apiPut<T>(path: string, body: unknown): Promise<T> {
     } catch {
       /* cuerpo vacío */
     }
-    throw new ApiError(res.status, mensajeDeError(res.status, errBody));
+    throw errorDesdeRespuesta(res.status, errBody);
   }
   const json = (await res.json()) as ApiResponse<T>;
   return json.data;
@@ -109,7 +124,7 @@ export async function apiDelete(path: string): Promise<true> {
     } catch {
       /* cuerpo vacío */
     }
-    throw new ApiError(res.status, mensajeDeError(res.status, errBody));
+    throw errorDesdeRespuesta(res.status, errBody);
   }
   return true;
 }

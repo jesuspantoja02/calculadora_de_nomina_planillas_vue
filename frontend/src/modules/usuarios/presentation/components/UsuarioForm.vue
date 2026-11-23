@@ -16,8 +16,9 @@ const props = withDefaults(
     rolesAsignables: RolUsuario[];
     guardando: boolean;
     soloAlta?: boolean;
+    sesionId?: string | null;
   }>(),
-  { soloAlta: false },
+  { soloAlta: false, sesionId: null },
 );
 
 const emit = defineEmits<{
@@ -54,7 +55,13 @@ const cambioPasswordAbierto = ref(false);
 const rol = ref<RolUsuario>(rolInicial.value);
 const fotoUrl = ref('');
 const fotoInicial = ref('');
+const activo = ref(true);
+const activoInicial = ref(true);
 const touched = ref<Record<string, boolean>>({});
+
+const esSesionActual = computed(
+  () => !esNuevo.value && props.cuenta != null && props.cuenta.id === props.sesionId,
+);
 
 function limpiar() {
   usuario.value = '';
@@ -64,6 +71,8 @@ function limpiar() {
   rol.value = rolInicial.value;
   fotoUrl.value = '';
   fotoInicial.value = '';
+  activo.value = true;
+  activoInicial.value = true;
   touched.value = {};
 }
 
@@ -80,6 +89,8 @@ watch(
       rol.value = props.cuenta.rol;
       fotoUrl.value = props.cuenta.fotoUrl ?? '';
       fotoInicial.value = props.cuenta.fotoUrl ?? '';
+      activo.value = props.cuenta.activo !== false;
+      activoInicial.value = props.cuenta.activo !== false;
       touched.value = {};
     } else {
       limpiar();
@@ -142,6 +153,7 @@ async function enviar(e: Event) {
     if (cambioPasswordAbierto.value && password.value) dto.password = password.value;
     if (rol.value !== props.cuenta!.rol) dto.rol = rol.value;
     if (fotoUrl.value !== fotoInicial.value) dto.fotoUrl = fotoUrl.value;
+    if (activo.value !== activoInicial.value) dto.activo = activo.value;
     if (Object.keys(dto).length === 0) return;
     emit('guardar', dto, false);
   }
@@ -297,6 +309,26 @@ const clasePassword = computed(
           <option v-for="r in rolesAsignables" :key="r" :value="r">{{ etiquetaRol(r) }}</option>
         </FormSelect>
         <small class="text-secondary">{{ ayudaRol }}</small>
+      </div>
+
+      <div v-if="!esNuevo" class="form-check form-switch mb-4">
+        <input
+          id="cuenta-activo"
+          v-model="activo"
+          class="form-check-input"
+          type="checkbox"
+          role="switch"
+          :disabled="guardando || esSesionActual"
+        />
+        <label class="form-check-label" for="cuenta-activo">
+          {{ activo ? 'Usuario habilitado' : 'Usuario deshabilitado' }}
+        </label>
+        <small v-if="esSesionActual" class="d-block text-secondary">
+          No puedes deshabilitar tu propia cuenta.
+        </small>
+        <small v-else class="d-block text-secondary">
+          Si lo deshabilitas, no podrá iniciar sesión ni usar el sistema.
+        </small>
       </div>
 
       <div class="d-flex flex-wrap gap-2">

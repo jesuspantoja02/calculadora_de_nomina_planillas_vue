@@ -25,6 +25,9 @@ services:
         generateValue: true
       - key: AUTH_TOKEN_TTL_HOURS
         value: "12"
+      # Código largo y secreto: solo admins pueden restablecer clave sin sesión (vacío = deshabilitado)
+      - key: AUTH_ADMIN_RECOVERY_SECRET
+        sync: false
       - key: RATE_LIMIT_MAX
         value: "300"
       # Origen del Static Site (mismo nombre que nomina-web abajo). Ajusta si renombras servicios.

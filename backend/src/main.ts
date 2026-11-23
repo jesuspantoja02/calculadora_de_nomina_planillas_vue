@@ -11,6 +11,7 @@ const app = crearApp({
   servicios: construirServicios(db, {
     authSecret: env.AUTH_SECRET,
     tokenTtlMs: env.AUTH_TOKEN_TTL_HOURS * 60 * 60 * 1000,
+    adminRecoverySecret: env.AUTH_ADMIN_RECOVERY_SECRET,
     geminiApiKey: env.GEMINI_API_KEY,
     geminiModel: env.GEMINI_MODEL,
     openaiApiKey: env.OPENAI_API_KEY,

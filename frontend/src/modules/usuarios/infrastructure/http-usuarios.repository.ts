@@ -20,6 +20,10 @@ export class HttpUsuariosRepository implements UsuariosRepository {
     return apiPut<UsuarioCuenta>(`/usuarios/${id}`, dto);
   }
 
+  liberarBloqueo(id: string): Promise<UsuarioCuenta> {
+    return apiPost<UsuarioCuenta>(`/usuarios/${id}/liberar-bloqueo`, {});
+  }
+
   eliminar(id: string): Promise<true> {
     return apiDelete(`/usuarios/${id}`);
   }

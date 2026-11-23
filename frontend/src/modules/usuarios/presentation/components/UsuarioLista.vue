@@ -15,6 +15,7 @@ defineProps<{
 const emit = defineEmits<{
   editar: [u: UsuarioCuenta];
   eliminar: [u: UsuarioCuenta];
+  liberar: [u: UsuarioCuenta];
 }>();
 
 const { tema } = useTheme();
@@ -74,9 +75,21 @@ function formatoFecha(iso: string): string {
       </div>
       <div class="text-end">
         <span class="pill cuenta-rol" :class="`cuenta-rol--${u.rol}`">{{ etiquetaRol(u.rol) }}</span>
+        <span v-if="u.activo === false" class="pill pill--danger ms-1">Deshabilitado</span>
+        <span v-if="u.bloqueada" class="pill pill--danger ms-1">Bloqueada</span>
         <span v-if="u.id === sesionId" class="pill ms-1">Tu sesión</span>
       </div>
       <div class="btn-group btn-group-sm">
+        <button
+          v-if="u.bloqueada"
+          type="button"
+          class="btn btn-outline-warning"
+          :aria-label="`Liberar bloqueo de ${u.usuario}`"
+          title="Liberar bloqueo de login"
+          @click="emit('liberar', u)"
+        >
+          Liberar
+        </button>
         <button
           type="button"
           class="btn btn-outline-primary"

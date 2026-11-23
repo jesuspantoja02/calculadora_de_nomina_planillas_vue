@@ -11,7 +11,10 @@ export interface AuthState {
   userEmail: ComputedRef<string | null>;
   rol: ComputedRef<RolUsuario | null>;
   fotoUrl: ComputedRef<string>;
-  login: (usuario: string, password: string) => Promise<{ ok: true } | { ok: false; message: string }>;
+  login: (
+    usuario: string,
+    password: string,
+  ) => Promise<{ ok: true } | { ok: false; message: string; code?: string; details?: unknown }>;
   logout: () => void;
   actualizarFotoLocal: (fotoUrl: string) => void;
 }
@@ -49,7 +52,12 @@ export function provideAuth(): AuthState {
       return { ok: true as const };
     } catch (error) {
       if (error instanceof ApiError) {
-        return { ok: false as const, message: error.message };
+        return {
+          ok: false as const,
+          message: error.message,
+          code: error.code,
+          details: error.details,
+        };
       }
       return { ok: false as const, message: 'No se pudo conectar con el servidor. ¿Está encendido el backend?' };
     }

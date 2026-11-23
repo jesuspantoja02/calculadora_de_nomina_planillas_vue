@@ -7,8 +7,21 @@ export const loginSchema = z.object({
   password: z.string().min(1, 'La contraseña es obligatoria.').max(128),
 });
 
+export const inspeccionarCuentaSchema = z.object({
+  usuario: z.string().trim().min(1, 'El usuario es obligatorio.').max(64),
+});
+
 export const cambiarPasswordSchema = z.object({
   passwordActual: z.string().min(1, 'Indica tu contraseña actual.'),
+  passwordNueva: passwordCampo,
+});
+
+export const recuperarClaveAdminSchema = z.object({
+  usuario: z.string().trim().min(1, 'El usuario es obligatorio.').max(64),
+  codigoRecuperacion: z
+    .string()
+    .min(1, 'El código de recuperación es obligatorio.')
+    .max(256, 'El código es demasiado largo.'),
   passwordNueva: passwordCampo,
 });
 

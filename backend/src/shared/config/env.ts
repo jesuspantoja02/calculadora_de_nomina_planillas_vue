@@ -8,6 +8,13 @@ const esquema = z.object({
   RATE_LIMIT_MAX: z.coerce.number().int().min(1).default(300),
   AUTH_SECRET: z.string().min(16).default('dev-nomina-auth-secret-cambiar-en-prod'),
   AUTH_TOKEN_TTL_HOURS: z.coerce.number().positive().max(168).default(12),
+  /** Código para restablecer contraseña de admin sin sesión (vacío = deshabilitado). */
+  AUTH_ADMIN_RECOVERY_SECRET: z
+    .string()
+    .default('')
+    .refine((v) => v === '' || v.length >= 16, {
+      message: 'AUTH_ADMIN_RECOVERY_SECRET debe tener al menos 16 caracteres o quedar vacío.',
+    }),
   /** Google AI Studio / Gemini (recomendado para el asistente). */
   GEMINI_API_KEY: z.string().optional().default(''),
   GEMINI_MODEL: z.string().optional().default('gemini-3.1-flash-lite'),
