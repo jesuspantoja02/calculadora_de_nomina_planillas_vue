@@ -29,7 +29,7 @@ services:
         value: "300"
       # Origen del Static Site (mismo nombre que nomina-web abajo). Ajusta si renombras servicios.
       - key: CORS_ORIGINS
-        value: https://nomina-web.onrender.com,http://localhost:5174
+        value: https://calculadora-nomina-planillas-vue-web.onrender.com,http://localhost:5174
       # Asistente en la nube (opcional): rellena en el dashboard o deja vacío → motor local
       - key: GEMINI_API_KEY
         sync: false
@@ -54,4 +54,4 @@ services:
         value: "22.18.0"
       # URL pública del Web Service nomina-api (debe coincidir con name: nomina-api)
       - key: VITE_API_URL
-        value: https://nomina-api.onrender.com/api/v1
+        value: https://calculadora-nomina-planillas-vue-api.onrender.com/api/v1
