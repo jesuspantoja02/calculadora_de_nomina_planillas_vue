@@ -18,6 +18,7 @@ const emit = defineEmits<{ cerrar: [] }>();
 const toast = useToast();
 const run = useApiAction();
 const { actualizarFotoLocal } = useAuth();
+const sheetRef = ref<HTMLElement | null>(null);
 
 const perfil = ref<PerfilApi | null>(null);
 const cargando = ref(false);
@@ -74,6 +75,10 @@ watch(
 );
 
 function cerrarTodo() {
+  const activo = document.activeElement;
+  if (activo instanceof HTMLElement && sheetRef.value?.contains(activo)) {
+    activo.blur();
+  }
   emit('cerrar');
   panelPassword.value = false;
   limpiarPassword();
@@ -138,12 +143,14 @@ function estadoCampo(ok: boolean, tocado: boolean, valor: string): 'valid' | 'in
     @click="cerrarTodo"
   />
   <aside
+    ref="sheetRef"
     class="profile-sheet no-print"
     :class="{
       'profile-sheet--open': abierto,
       'profile-sheet--password-open': panelPassword,
     }"
-    :aria-hidden="!abierto"
+    :aria-hidden="abierto ? undefined : true"
+    :inert="!abierto"
     aria-label="Mi perfil"
   >
     <div class="profile-sheet__main">

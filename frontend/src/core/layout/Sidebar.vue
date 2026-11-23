@@ -10,7 +10,8 @@ import type { NombreIcono } from '../../shared/ui/iconTypes';
 import ProfileSheet from './ProfileSheet.vue';
 import { perfilAbierto } from './paneles-laterales';
 
-defineProps<{ abierto: boolean }>();
+const props = defineProps<{ abierto: boolean; id?: string }>();
+defineOptions({ inheritAttrs: false });
 const emit = defineEmits<{ navegar: [] }>();
 
 interface ItemNav {
@@ -83,7 +84,7 @@ function cerrarSesion() {
 </script>
 
 <template>
-  <aside class="sidebar no-print" :class="{ abierto }">
+  <aside :id="props.id" class="sidebar no-print" :class="{ abierto: props.abierto }">
     <div class="sidebar-brand-row">
       <button
         type="button"

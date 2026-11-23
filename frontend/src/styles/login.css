@@ -6,7 +6,10 @@
   min-height: 100dvh;
   display: grid;
   place-items: center;
-  padding: clamp(1rem, 3vw, 2rem);
+  padding: max(clamp(1rem, 3vw, 2rem), env(safe-area-inset-top, 0px))
+    max(clamp(1rem, 3vw, 2rem), env(safe-area-inset-right, 0px))
+    max(clamp(1rem, 3vw, 2rem), env(safe-area-inset-bottom, 0px))
+    max(clamp(1rem, 3vw, 2rem), env(safe-area-inset-left, 0px));
   overflow-x: hidden;
   overflow-y: auto;
   background:

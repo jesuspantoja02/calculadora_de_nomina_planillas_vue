@@ -8,7 +8,9 @@ export function crearAuthRouter(servicio: AuthService) {
   const c = crearAuthController(servicio);
   router.post('/login', c.login);
   router.get('/me', requiereAuth(servicio), c.yo);
+  // PUT es el contrato actual; PATCH se mantiene por compatibilidad con clientes antiguos.
   router.put('/me', requiereAuth(servicio), c.actualizarPerfil);
+  router.patch('/me', requiereAuth(servicio), c.actualizarPerfil);
   router.post('/cambiar-password', requiereAuth(servicio), c.cambiarPassword);
   return router;
 }

@@ -1,0 +1,57 @@
+# Nómina — Blueprint Render (API + SPA Vue)
+# Uso: Render Dashboard → New + → Blueprint → conecta este repo → Apply
+# Doc: docs/DESPLIEGUE-RENDER.md
+
+services:
+  # --- API Express (backend/) ---
+  - type: web
+    name: nomina-api
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22.18.0"
+      - key: DATABASE_FILE
+        value: data/nomina.db
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: AUTH_TOKEN_TTL_HOURS
+        value: "12"
+      - key: RATE_LIMIT_MAX
+        value: "300"
+      # Origen del Static Site (mismo nombre que nomina-web abajo). Ajusta si renombras servicios.
+      - key: CORS_ORIGINS
+        value: https://nomina-web.onrender.com,http://localhost:5174
+      # Asistente en la nube (opcional): rellena en el dashboard o deja vacío → motor local
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.1-flash-lite
+
+  # --- SPA Vue 3 (frontend/) ---
+  - type: web
+    name: nomina-web
+    runtime: static
+    plan: free
+    branch: main
+    rootDir: frontend
+    buildCommand: npm install --include=dev && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: "22.18.0"
+      # URL pública del Web Service nomina-api (debe coincidir con name: nomina-api)
+      - key: VITE_API_URL
+        value: https://nomina-api.onrender.com/api/v1

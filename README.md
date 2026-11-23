@@ -289,7 +289,7 @@ conservando el mismo flujo de pantallas, **arquitectura hexagonal** en backend y
 | Backend | Arquitectura hexagonal (Express 5, SQLite) + módulo **`auth`** (JWT, usuarios, roles) |
 | Frontend | React 19, Vite 8, React Router 7, TypeScript 6, Bootstrap 5.3, **Geist Sans / Geist Mono** (`@fontsource`) |
 | Pruebas | `node:test` (backend) y Vitest (frontend, validadores de entrada) |
-| Despliegue | Guía en [`docs/DESPLIEGUE-RENDER.md`](docs/DESPLIEGUE-RENDER.md) (API + SPA en Render, CORS, `VITE_API_URL`) |
+| Despliegue | [`docs/DESPLIEGUE-RENDER.md`](docs/DESPLIEGUE-RENDER.md) + [`render.yaml`](render.yaml) (Blueprint API + SPA) |
 
 ### Flujo de usuario (continuidad con las unidades anteriores)
 
@@ -323,6 +323,7 @@ calculadora_de_nomina_planillas/
 │       ├── core/                    Auth, tema, layout (`Shell`, `WelcomePanel`, `LoginPage`), toasts
 │       └── modules/                 Un módulo por funcionalidad (como el backend)
 │           └── <modulo>/            domain · application · infrastructure · presentation
+├── render.yaml                      Blueprint Render (API + SPA)
 └── docs/
     ├── nomina-api.postman_collection.json
     └── DESPLIEGUE-RENDER.md         Publicación en Render (plan Free)
@@ -445,7 +446,7 @@ Es la versión que vive en el **árbol actual** del repositorio (`calculadora_de
 | Backend | Hexagonal (Express 5, SQLite) + **`auth`** + módulo **`asistente`** (Gemini / OpenAI / Ollama / motor local) |
 | Frontend | **Vue 3.5**, Vite 7, Vue Router 4, TypeScript, Bootstrap 5.3, Geist Sans / Mono; **exceljs** y **jspdf** |
 | Pruebas | `node:test` (backend); auditoría `npm run audit:prod` en ambos paquetes |
-| Despliegue | [`docs/DESPLIEGUE-RENDER.md`](docs/DESPLIEGUE-RENDER.md) (API + SPA Vue en Render, CORS, `VITE_API_URL`) |
+| Despliegue | [`docs/DESPLIEGUE-RENDER.md`](docs/DESPLIEGUE-RENDER.md) + [`render.yaml`](render.yaml) (Blueprint: API + SPA en Render) |
 
 ### Qué mejora respecto a la Unidad 3 (React)
 
@@ -496,9 +497,10 @@ calculadora_de_nomina_planillas/
 │       ├── core/                    auth, tema, layout, toasts, confirm, asistente
 │       └── modules/                 Un módulo por funcionalidad (SFC + composables)
 │           └── <modulo>/            domain · application · infrastructure · presentation
+├── render.yaml                      Blueprint Render (API + SPA) — SPA Vue
 └── docs/
     ├── nomina-api.postman_collection.json
-    └── DESPLIEGUE-RENDER.md         Publicación en Render (plan Free) — SPA Vue
+    └── DESPLIEGUE-RENDER.md         Publicación en Render (plan Free)
 ```
 
 ### Backend — auth + asistente

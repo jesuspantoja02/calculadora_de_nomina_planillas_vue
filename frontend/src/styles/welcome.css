@@ -207,15 +207,35 @@ html[data-theme='dark'] .welcome-panel__loading {
 
 @media (max-width: 991.98px) {
   .welcome-panel {
-    min-height: calc(100vh - 0px);
+    min-height: 100%;
   }
 
   .welcome-panel__content {
-    padding: 72px 24px 40px;
+    padding: calc(72px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right))
+      calc(40px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left));
     justify-content: flex-start;
   }
 
   .welcome-panel__guia {
     margin-top: 32px;
+  }
+
+  .welcome-panel__logo {
+    width: min(112px, 28vw);
+    height: min(112px, 28vw);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .welcome-panel__content {
+    padding-inline: 16px;
+  }
+
+  .welcome-panel__nombre {
+    font-size: clamp(1.45rem, 7vw, 1.9rem);
+  }
+
+  .welcome-panel__eslogan {
+    font-size: 0.95rem;
   }
 }

@@ -17,6 +17,8 @@ const SUGERENCIAS = [
 const borrador = ref('');
 const inputRef = ref<HTMLTextAreaElement | null>(null);
 const cuerpoRef = ref<HTMLElement | null>(null);
+const panelRef = ref<HTMLElement | null>(null);
+const fabRef = ref<HTMLButtonElement | null>(null);
 const mensajes = ref<MensajeChat[]>([]);
 const pensando = ref(false);
 const errorEnvio = ref('');
@@ -66,8 +68,20 @@ async function scrollAlFinal() {
   if (el) el.scrollTop = el.scrollHeight;
 }
 
+function soltarFocoDelPanel() {
+  const activo = document.activeElement;
+  if (activo instanceof HTMLElement && panelRef.value?.contains(activo)) {
+    activo.blur();
+  }
+}
+
 function cerrar() {
+  // Evita el warning de aria-hidden / inert sobre un descendiente con foco.
+  soltarFocoDelPanel();
   abierto.value = false;
+  void nextTick(() => {
+    fabRef.value?.focus({ preventScroll: true });
+  });
 }
 
 function abrir() {
@@ -147,9 +161,11 @@ function bloques(texto: string): Array<{ tipo: 'p'; html: string }> {
     />
 
     <aside
+      ref="panelRef"
       class="asistente-ia__panel"
       :class="{ 'asistente-ia__panel--open': abierto }"
-      :aria-hidden="!abierto"
+      :aria-hidden="abierto ? undefined : true"
+      :inert="!abierto"
       aria-label="Asistente de consultas"
     >
       <header class="asistente-ia__head">
@@ -217,9 +233,10 @@ function bloques(texto: string): Array<{ tipo: 'p'; html: string }> {
 
     <button
       v-show="fabVisible"
+      ref="fabRef"
       type="button"
       class="asistente-ia__fab"
-      aria-expanded="false"
+      :aria-expanded="abierto"
       aria-label="Abrir asistente de consultas"
       @click="abrir"
     >

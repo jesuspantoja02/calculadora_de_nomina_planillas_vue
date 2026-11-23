@@ -12,6 +12,13 @@ export const cambiarPasswordSchema = z.object({
   passwordNueva: passwordCampo,
 });
 
-export const actualizarPerfilSchema = z.object({
-  fotoUrl: fotoUrlCampo,
-});
+/** Acepta `fotoUrl` (actual) o `fotoPerfilUrl` (alias legado). */
+export const actualizarPerfilSchema = z
+  .object({
+    fotoUrl: fotoUrlCampo.optional(),
+    fotoPerfilUrl: fotoUrlCampo.optional(),
+  })
+  .transform((v) => ({
+    fotoUrl: v.fotoUrl ?? v.fotoPerfilUrl ?? '',
+  }))
+  .pipe(z.object({ fotoUrl: fotoUrlCampo }));

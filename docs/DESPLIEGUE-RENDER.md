@@ -7,12 +7,16 @@ Guía paso a paso para publicar el **árbol actual** del monorepo (Unidad 3 Fina
 
 Replica en la nube lo que haces en local con `npm run dev:backend` y `npm run dev:frontend` (`http://localhost:5174`), con **dos URLs distintas**, **CORS** y la variable **`VITE_API_URL`** en el build del Static Site.
 
+> **Importante:** en Render subes **backend y frontend** (dos servicios o un **Blueprint**). El repo incluye [`render.yaml`](../render.yaml) en la raíz para crearlos juntos; también puedes crearlos a mano en el dashboard (secciones 8 y 12).
+
 Documentación del producto y evolución por unidades: [`README.md`](../README.md) (sección **Unidad 3 Final**).
 
 ---
 
 ## Tabla de contenidos
 
+0. [Flujo completo: GitHub → Render (API + SPA)](#0-flujo-completo-github--render-api--spa)
+0b. [Alternativa: Blueprint `render.yaml`](#0b-alternativa-blueprint-renderyaml)
 1. [Qué vas a obtener](#1-qué-vas-a-obtener)
 2. [Requisitos previos](#2-requisitos-previos)
 3. [Limitaciones del plan Free (léelas antes)](#3-limitaciones-del-plan-free-léelas-antes)
@@ -30,6 +34,49 @@ Documentación del producto y evolución por unidades: [`README.md`](../README.m
 15. [Variables de entorno (referencia)](#15-variables-de-entorno-referencia)
 16. [Solución de problemas](#16-solución-de-problemas)
 17. [Mantenimiento y redespliegues](#17-mantenimiento-y-redespliegues)
+18. [Apéndice: contenido de `render.yaml`](#18-apéndice-contenido-de-renderyaml)
+
+---
+
+## 0. Flujo completo: GitHub → Render (API + SPA)
+
+Orden recomendado la **primera vez** (no saltes el backend: el frontend necesita la URL de la API para `VITE_API_URL`):
+
+| Paso | Dónde | Qué haces |
+|------|--------|-----------|
+| 1 | Tu PC | `npm run install:all`, builds locales (sección 5) |
+| 2 | GitHub | Push de `main` con `backend/` y `frontend/` (sección 6) |
+| 3 | Render | Cuenta + conectar GitHub (sección 7) |
+| 4 | Render | **Web Service** → carpeta `backend/` (sección 8) → copiar URL de la API |
+| 5 | Render | Comprobar `/api/v1/health` (sección 9) |
+| 6 | Render | **Static Site** → carpeta `frontend/` + `VITE_API_URL` (sección 12) → copiar URL del SPA |
+| 7 | Render | Actualizar `CORS_ORIGINS` del **backend** con la URL del SPA (sección 13) |
+| 8 | Navegador | Login y flujo completo (sección 14) |
+
+### Un repo, dos servicios
+
+| | Backend (API) | Frontend (SPA) |
+|---|----------------|----------------|
+| Tipo en Render | **Web Service** | **Static Site** |
+| Root Directory | `backend` | `frontend` |
+| Build | `npm install && npm run build` | `npm install --include=dev && npm run build` |
+| Arranque / salida | `npm start` → `dist/main.js` | Publicar carpeta `dist/` |
+| URL | `https://nomina-api-xxxx.onrender.com` | `https://nomina-web-xxxx.onrender.com` |
+| Variables clave | `AUTH_SECRET`, `CORS_ORIGINS`, (opc.) `GEMINI_API_KEY` | `VITE_API_URL` |
+
+Cada `git push` a `main` puede redeployar **solo** el servicio que Render tiene conectado a ese repo; si cambias ambas carpetas, conviene esperar a que terminen **los dos** deploys (API y Static Site).
+
+### 0b. Alternativa: Blueprint `render.yaml`
+
+En la raíz del repo: [`render.yaml`](../render.yaml). Crea **API + SPA en un solo paso**:
+
+1. `git push` (incluye `render.yaml`).
+2. Render → **New +** → **Blueprint** → tu repo, rama `main` → **Apply Blueprint**.
+3. Si pide variables con `sync: false`, configura **`GEMINI_API_KEY`** (opcional; vacío = asistente local).
+4. Espera **Live** en `nomina-api` y `nomina-web`.
+5. Prueba `https://nomina-api.onrender.com/api/v1/health` y abre `https://nomina-web.onrender.com`.
+
+El Blueprint fija los nombres de servicio y precarga `VITE_API_URL` y `CORS_ORIGINS` para `https://nomina-api.onrender.com` y `https://nomina-web.onrender.com`. Si cambias el **Name** en el dashboard, actualiza esas variables o edita `render.yaml` y vuelve a sincronizar.
 
 ---
 
@@ -149,19 +196,67 @@ npm run build
 npm run preview
 ```
 
+### 5.2 Verificar el build del backend (antes de Render)
+
+```bash
+cd backend
+npm install
+npm run build
+npm start
+```
+
+En otra terminal:
+
+```text
+http://localhost:3000/api/v1/health
+```
+
+Debe responder `{"data":{"estado":"ok",...}}`. Detén el proceso local antes de seguir.
+
+En Render el **Web Service** ejecutará el mismo `npm run build` y `npm start` dentro de `backend/` (no uses la raíz del monorepo como Root Directory).
+
+### 5.3 Qué enlaza backend ↔ frontend en producción
+
+| Pieza | Servicio | Valor ejemplo |
+|--------|-----------|----------------|
+| API base | Backend | `https://nomina-api-xxxx.onrender.com/api/v1` |
+| Origen del SPA | Frontend | `https://nomina-web-xxxx.onrender.com` |
+| `VITE_API_URL` | Static Site (build) | URL de la fila API base |
+| `CORS_ORIGINS` | Web Service (runtime) | URL del SPA (+ `http://localhost:5174` si desarrollas en local) |
+
+Si cambias el nombre del servicio en Render, cambian las URLs: vuelve a poner `VITE_API_URL`, redeploy del **frontend**, y actualiza `CORS_ORIGINS` en el **backend**.
+
 ---
 
 ## 6. Subir el proyecto a GitHub
 
+Render **no** sube tu código: primero debe estar en **GitHub** (u otro Git que Render permita). Desde ahí crearás **dos** servicios que leen el **mismo** remoto.
+
 1. Crea el repositorio en GitHub (vacío o con README).
-2. En la raíz del monorepo:
+2. En la raíz del monorepo (PowerShell o bash):
 
    ```bash
+   git init
+   git add .
+   git commit -m "Monorepo: API + SPA Vue"
+   git branch -M main
    git remote add origin https://github.com/TU_USUARIO/TU_REPO.git
    git push -u origin main
    ```
 
-Render leerá `backend/` y `frontend/` desde la rama conectada (normalmente `main`).
+3. Confirma en GitHub que ves **ambas** carpetas en la raíz:
+
+   ```text
+   backend/
+   frontend/
+   docs/
+   package.json
+   README.md
+   ```
+
+4. En cada servicio de Render (API y Static Site), al conectar el repo elige la misma rama (**`main`**) y solo cambia **Root Directory** (`backend` vs `frontend`).
+
+**No subas a GitHub** (el `.gitignore` ya lo evita): `node_modules/`, `backend/.env`, `backend/data/*.db`, secretos.
 
 ---
 
@@ -172,9 +267,16 @@ Render leerá `backend/` y `frontend/` desde la rama conectada (normalmente `mai
 3. Conecta tu cuenta de **GitHub** cuando Render lo pida.
 4. Autoriza a Render para acceder al repositorio de este proyecto (puedes limitar solo a ese repo).
 
+### 7.1 Qué vas a crear en Render (dos veces “New +”)
+
+1. **New +** → **Web Service** → mismo repo → Root **`backend`** (sección 8).
+2. **New +** → **Static Site** → mismo repo → Root **`frontend`** (sección 12).
+
+No mezcles tipos: la API **no** puede ser Static Site; el Vue **no** debe ser Web Service (en plan Free la SPA va en Static Site con `dist/`).
+
 ---
 
-## 8. Desplegar la API (Web Service)
+## 8. Desplegar la API (Web Service) — backend
 
 ### 8.1 Crear el servicio
 
@@ -228,11 +330,15 @@ Al arrancar, si no existe el usuario administrador inicial, se crea uno (ver `ba
 /api/v1/health
 ```
 
-### 8.5 Crear el servicio
+### 8.5 Auto Deploy
 
-**Create Web Service**. Render compila TypeScript (`dist/`) y arranca `node dist/main.js`. Espera estado **Live**.
+En **Settings** del Web Service, deja activo **Auto-Deploy** para la rama `main` (recomendado). Así cada `git push` que toque `backend/` redeploya la API.
 
-### 8.6 Copiar la URL de la API
+### 8.6 Crear el servicio
+
+**Create Web Service**. Render compila TypeScript (`dist/`) y arranca `node dist/main.js`. Espera estado **Live** (el primer deploy puede tardar varios minutos).
+
+### 8.7 Copiar la URL de la API
 
 Ejemplo:
 
@@ -240,7 +346,9 @@ Ejemplo:
 https://nomina-api-xxxx.onrender.com
 ```
 
-La necesitas para `VITE_API_URL` y para CORS.
+La necesitas para **`VITE_API_URL`** (frontend) y para **`CORS_ORIGINS`** (backend, sección 13).
+
+**No crees el Static Site** hasta tener esta URL y un `/api/v1/health` OK.
 
 ---
 
@@ -317,6 +425,18 @@ Invoke-RestMethod -Uri "$base/empleados" -Headers @{ Authorization = "Bearer $($
    {"mensaje":"¿Qué rutas hay en el menú?","historial":[]}
    ```
 
+5. **Actualizar foto de perfil** (protegido; el SPA usa `PUT`):
+
+   ```http
+   PUT https://TU-SERVICIO-API.onrender.com/api/v1/auth/me
+   Authorization: Bearer <data.token>
+   Content-Type: application/json
+
+   {"fotoUrl":"data:image/jpeg;base64,..."}
+   ```
+
+   También acepta `PATCH /auth/me` y el alias legado `fotoPerfilUrl`. Cadena vacía en `fotoUrl` quita la foto.
+
 Desde el **frontend desplegado**, tras iniciar sesión, el token está en `sessionStorage` (`nomina_auth_token`); la app añade el header `Authorization` automáticamente (`frontend/src/shared/infrastructure/http/apiClient.ts`).
 
 CORS no aplica a curl/Postman/PowerShell; solo al navegador.
@@ -339,11 +459,13 @@ Tras un redeploy, la base SQLite puede quedar vacía otra vez.
 
 ---
 
-## 12. Desplegar el frontend (Static Site)
+## 12. Desplegar el frontend (Static Site) — SPA Vue
+
+Solo después de tener la API en **Live** y la URL del paso **8.7**.
 
 ### 12.1 Variable de entorno del build
 
-Necesitas la URL de la API del paso 8.6. En el Static Site, **antes o al crear**:
+Necesitas la URL de la API. En el Static Site, **antes o al crear** (Environment → **Environment Variables**):
 
 | Key | Value |
 |-----|--------|
@@ -361,10 +483,20 @@ Sin barra final después de `v1`. Debe incluir el prefijo `/api/v1`.
 | **Name** | `nomina-web` |
 | **Branch** | `main` |
 | **Root Directory** | `frontend` |
-| **Build Command** | `npm install && npm run build` |
+| **Build Command** | `npm install --include=dev && npm run build` |
 | **Publish Directory** | `dist` |
 
+> **Importante:** Vite, `vue-tsc` y el plugin Vue están en `devDependencies`. Si el build en Render falla con *“vue-tsc no reconocido”*, usa exactamente el comando de arriba (`--include=dev`), no solo `npm install --omit=dev`.
+
+Variables opcionales recomendadas en el Static Site:
+
+| Key | Value |
+|-----|--------|
+| `NODE_VERSION` | `22.18.0` (mismo major que el backend; Render usa Node para el build) |
+
 El build ejecuta `vue-tsc --noEmit` y `vite build` (`frontend/package.json`). Si falla por tipos, corrige en local con `cd frontend && npm run build` antes de redeployar.
+
+**Auto-Deploy:** como en la API, deja la rama `main` con auto-deploy para que los cambios en `frontend/` publiquen solos tras cada `git push`.
 
 ### 12.3 Rewrite para Vue Router (SPA)
 
@@ -426,6 +558,7 @@ http://localhost:5174,https://nomina-web-xxxx.onrender.com
 |---------|----------------|
 | Error CORS | `CORS_ORIGINS` no coincide exactamente con la URL del Static Site |
 | Peticiones a `tu-web.onrender.com/api/...` | Falta o está mal `VITE_API_URL`; redeploy del Static Site |
+| **404** al subir foto de perfil | API desactualizada: debe existir `PUT` o `PATCH /api/v1/auth/me`; redeploy del **backend** |
 | **401** en la API | Sin login o token expirado (`AUTH_TOKEN_TTL_HOURS`) |
 | **403** en `/configuracion` o `/usuarios` en la UI | Rol sin permiso de gestor; inicia sesión con jefe/gerente/admin |
 | API lenta tras inactividad | Cold start del plan Free |
@@ -544,19 +677,51 @@ Cada push a `main` redeploya el servicio conectado, o **Manual Deploy** → **De
 
 ## Resumen rápido (checklist)
 
-- [ ] Código en GitHub (`main`), sin `.env` ni `*.db`
-- [ ] Web Service `backend/` con `AUTH_SECRET` y `CORS_ORIGINS`
+### GitHub (una vez)
+
+- [ ] Repo con `backend/` y `frontend/` en `main`, sin `.env` ni `*.db`
+- [ ] Builds locales OK (`cd backend && npm run build`, `cd frontend && npm run build`)
+
+### Backend en Render
+
+- [ ] **Web Service**, Root **`backend`**, `npm install && npm run build` / `npm start`
+- [ ] `AUTH_SECRET`, `NODE_ENV=production`, `NODE_VERSION=22.18.0`
 - [ ] (Opcional) `GEMINI_API_KEY` para asistente en la nube
-- [ ] `/api/v1/health` responde OK
-- [ ] Static Site `frontend/`, publish `dist`, `VITE_API_URL` con `/api/v1`
-- [ ] Rewrite SPA `/*` → `/index.html`
-- [ ] `CORS_ORIGINS` incluye la URL del Static Site (`https://...`)
-- [ ] Login en la web, contraseña de admin rotada si el sitio es público
-- [ ] Flujo completo: empleados (export), pago, boletas (PDF), dashboard, asistente
-- [ ] Configuración/usuarios probados con rol gestor
+- [ ] Health check `/api/v1/health` → **Live**
+- [ ] URL de la API guardada para el frontend
+
+### Frontend en Render
+
+- [ ] **Static Site**, Root **`frontend`**, publish **`dist`**
+- [ ] `VITE_API_URL=https://TU-API.onrender.com/api/v1` (sin barra final tras `v1`)
+- [ ] Rewrite SPA `/*` → `/index.html` (status 200)
+- [ ] Static Site en estado **Live** con URL propia
+
+### Enlazar ambos
+
+- [ ] `CORS_ORIGINS` en el backend incluye la URL del Static Site (+ local si aplica)
+- [ ] Redeploy del backend tras cambiar CORS
+
+### Prueba
+
+- [ ] Login en la URL del **frontend** (no en la API)
+- [ ] Contraseña de admin rotada si el sitio es público
+- [ ] Foto de perfil, empleados (export), pago, boletas (PDF), dashboard, asistente
+- [ ] Configuración/usuarios con rol gestor
+
+---
+
+## 18. Apéndice: contenido de `render.yaml`
+
+El archivo versionado está en la raíz: [`render.yaml`](../render.yaml). Resumen:
+
+| Servicio | `name` | Tipo | `rootDir` |
+|----------|--------|------|-----------|
+| API | `nomina-api` | `web` + `runtime: node` | `backend` |
+| SPA | `nomina-web` | `web` + `runtime: static` | `frontend` |
+
+Tras el primer **Apply**, revisa en el dashboard que `CORS_ORIGINS`, `VITE_API_URL` y `AUTH_SECRET` (generado) coinciden con lo esperado. Si Render asigna un subdominio distinto al `name`, ajusta las URLs en Environment.
 
 ---
 
 **Autor del proyecto:** Jesús Pantoja — curso JavaScript Avanzado (UTP).
-
-Render también soporta **Blueprints** (`render.yaml` en la raíz); esta guía usa el dashboard visual, más claro la primera vez.
