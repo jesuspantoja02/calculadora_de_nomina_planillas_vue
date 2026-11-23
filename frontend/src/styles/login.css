@@ -176,12 +176,32 @@
 
 @media (max-width: 899px) {
   .login-page__grid {
-    grid-template-areas: 'card';
+    grid-template-areas:
+      'hero'
+      'card';
     max-width: 420px;
+    gap: 1.25rem;
   }
 
   .login-page__hero {
-    display: none;
+    text-align: left;
+  }
+
+  .login-page__hero-logo {
+    margin-bottom: 0.75rem;
+  }
+
+  .login-page__title {
+    font-size: clamp(1.35rem, 5.5vw, 1.65rem);
+  }
+
+  .login-page__lead {
+    max-width: none;
+    font-size: 0.9rem;
+  }
+
+  .login-page__stats {
+    margin-top: 1rem;
   }
 }
 
