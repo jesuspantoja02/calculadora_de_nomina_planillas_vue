@@ -418,8 +418,13 @@ async function onRecuperarAdmin(event?: Event) {
       </section>
 
       <header class="login-page__hero login-reveal login-reveal--2">
+        <p class="login-page__eyebrow">Nómina · Gestión de planillas</p>
         <div class="login-page__hero-logo">
           <BrandLogo :size="48" variant="mark" />
+          <div class="login-page__brand-text">
+            <strong>Planilla</strong>
+            <span>Nómina Perú</span>
+          </div>
         </div>
         <h1 class="login-page__title">Nómina con precisión, lista para operar</h1>
         <p class="login-page__lead">

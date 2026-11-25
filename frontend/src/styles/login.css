@@ -98,8 +98,8 @@
   display: grid;
   grid-template-columns: 1fr;
   grid-template-areas:
-    'card'
-    'hero';
+    'hero'
+    'card';
   gap: 1.5rem;
   align-items: center;
 }
@@ -126,6 +126,20 @@
 
 .login-page__hero-logo {
   margin-bottom: 1rem;
+}
+
+.login-page__eyebrow {
+  display: none;
+  margin: 0 0 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+.login-page__brand-text {
+  display: none;
 }
 
 .login-page__title {
@@ -175,19 +189,62 @@
 }
 
 @media (max-width: 899px) {
+  /* Scroll activo pero sin barra visible (cubre 375x667 y demás móviles) */
+  html:has(.login-page),
+  html:has(.login-page) body,
   .login-page {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html:has(.login-page)::-webkit-scrollbar,
+  html:has(.login-page) body::-webkit-scrollbar,
+  .login-page::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  /* El interruptor se desplaza con el contenido para no tapar el título al hacer scroll */
+  .login-page .login-page__theme {
+    position: absolute;
+  }
+
+  .login-page {
+    /* body tiene overflow:hidden: el scroll debe ocurrir dentro de .login-page */
+    height: 100dvh;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     place-items: start center;
-    padding-top: max(1rem, env(safe-area-inset-top, 0px));
+    /* Deja libre la zona del interruptor de tema (fixed arriba a la derecha) */
+    padding-top: calc(max(1rem, env(safe-area-inset-top, 0px)) + 3.5rem);
   }
 
   .login-page__grid {
-    /* Cartilla primero para que el login no quede fuera de pantalla; branding sigue visible abajo */
+    /* Branding (título) arriba y cartilla de login debajo */
     grid-template-areas:
-      'card'
-      'hero';
-    max-width: 420px;
-    gap: 1rem;
+      'hero'
+      'card';
+    /* Se ajusta al ancho del dispositivo: crece en pantallas grandes, se encoge en chicas */
+    max-width: clamp(16rem, 100%, 36rem);
+    gap: clamp(0.75rem, 3vw, 1.25rem);
     width: 100%;
+  }
+
+  .login-page .login-page__card {
+    max-width: none;
+    margin-inline: 0;
+    padding: clamp(1rem, 4.5vw, 1.75rem) clamp(0.9rem, 4.5vw, 1.75rem);
+  }
+
+  .login-page__card-head h2 {
+    font-size: clamp(1.05rem, 4.8vw, 1.4rem);
+  }
+
+  .login-page__card-head p {
+    font-size: clamp(0.76rem, 3.2vw, 0.9rem);
   }
 
   .login-page__hero {
@@ -195,23 +252,65 @@
   }
 
   .login-page__hero-logo {
-    margin-bottom: 0.55rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .login-page__eyebrow {
+    display: block;
+  }
+
+  .login-page__brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+
+  .login-page__brand-text strong {
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  .login-page__brand-text span {
+    font-size: 0.75rem;
+    color: var(--muted);
   }
 
   .login-page__title {
-    font-size: clamp(1.25rem, 5vw, 1.55rem);
+    font-size: clamp(1.15rem, 5.6vw, 2rem);
     margin-bottom: 0.4rem;
   }
 
   .login-page__lead {
     max-width: none;
-    font-size: 0.875rem;
+    font-size: clamp(0.78rem, 3.4vw, 1rem);
     line-height: 1.45;
   }
 
-  /* En móvil priorizamos branding corto + cartilla visible sin scroll excesivo */
+  /* En móvil las tarjetas se muestran en una fila compacta */
   .login-page__stats {
-    display: none;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .login-page__stat {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.55rem 0.4rem;
+    text-align: center;
+  }
+
+  .login-page__stat strong {
+    font-size: clamp(0.68rem, 3.1vw, 0.95rem);
+  }
+
+  .login-page__stat span {
+    font-size: clamp(0.6rem, 2.7vw, 0.8rem);
+    line-height: 1.25;
   }
 }
 
